@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buckheit.com - Awesome FHSAA Event Visualization</title>
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="spin.min.js"></script>
+    <style>
+        body {
+            background: url('http://www.redpepperwallpaper.com/wp_highres/abstraction/WPM7JGW7.jpg') center no-repeat fixed;
+        }
+
+        #main {
+            background: rgba(255, 255, 255, 0) center;
+            border-radius: 5px;
+            text-align: center;
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        #title {
+            color: white;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+            text-shadow: 0 0 5px #000;
+            font-size: 52px;
+        }
+
+        #description {
+            background: rgba(255, 255, 255, 0) center;
+            border-radius: 5px;
+            width: 600px;
+            font-size: 16pt;
+            text-align: justify;
+            color: white;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+            text-shadow: 0 0 2px #000;
+            margin: 0 auto;
+        }
+
+        #mainInput {
+            width: 800px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            border: none;
+            border-radius: 5px;
+            color: black;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+        }
+
+        .coolFont {
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+        }
+
+        .whiteColor {
+            color: white;
+            text-shadow: 0 0 2px #000;
+        }
+
+        th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="main"><h1 id="title">Buckheit.com</h1>
+
+    <form>
+        <input id="mainInput" type="text" placeholder="swimmer jacob buckheit in mens 200 im" autocomplete="off">
+    </form>
+    <div id="outputContainer" style="display: none;" class="whiteColor">
+        <br>
+
+        <div id="commandOutput">
+
+        </div>
+    </div>
+    <p id="description">
+        <br>
+        Enter a command to see results, swimmers, schools, and predictions. Use the compare keyword to compare any of
+        the previous. <b>This is still a work in progress and only the 'swimmer' commands work.</b> <b>Type 'help' for more help.</b>
+    </p>
+</div>
+
+<script type="text/javascript">
+    var timeout;
+    $("#mainInput").keypress(function (e) {
+        if (e.which == 13) e.preventDefault();
+        if (timeout != null)
+            clearTimeout(timeout);
+        timeout = setTimeout("onTimeout()", 700);
+
+        $("#outputContainer").show()
+    });
+
+    $("#commandOutput").on("click", ".expand-button", function (e) {
+        //console.log("hi")
+        if ($(this).data("expanded") == "true") {
+            console.log($(this).parent().parent());
+            $(this).html("<span class=\"glyphicon glyphicon-plus\"></span></button>");
+            $(this).parent().parent().find(".usa-swimming-table").fadeOut("slow");
+            $(this).data("expanded", "false");
+        } else {
+            $(this).html("<span class=\"glyphicon glyphicon-minus\"></span></button>");
+            $(this).parent().parent().find(".usa-swimming-table").fadeIn("slow");
+            $(this).data("expanded", "true");
+        }
+    });
+
+    function onTimeout() {
+        var co = $("#commandOutput");
+        co.html("");
+        $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
+            $("#description").fadeOut("slow");
+            $("#outputContainer").show();
+            if (data.errors) {
+                co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\">" + data.errors[0] + "</div><div class=\"col-md-4\"></div></div>");
+            } else {
+                if (data.type == "swimmer") {
+                    if (data.screens.length == 1) {
+                        console.log(data);
+                        co.html("<h3 class=\"coolFont\">Loading...</h3>")
+                        $.get(data.screens[0].substring(1), function (e) {
+                            co.html("");
+                            co.append("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont\">" + e.name + "</h1></div><div class=\"col-md-4\"></div></div>");
+                            co.append("<div class=\"row\">");
+                            var firstCol = "<div class='col-md-6'>";
+                            firstCol += "<h3 class=\"coolFont\">State Series Swims</h3><br>";
+                            firstCol += "<table class=\"table\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
+                            for (var i = 0; i < e.swims.length; i++) {
+                                firstCol += ("<tr><td>" + e.swims[i].place + "</td><td>" + e.swims[i].normal_event_name + "</td><td>" + e.swims[i].final_human + "</td><td>" + e.swims[i].meet_title + "</td></tr>");
+                            }
+                            firstCol += "</table></div>";
+                            co.append(firstCol);
+
+                            var secondCol = "<div class='col-md-6'><h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>";
+                            secondCol += "<br>";
+                            secondCol += "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
+                            for (var i = 0; i < e.bestTimes.length; i++) {
+                                secondCol += ("<tr><td>" + e.bestTimes[i].event + "</td><td>" + e.bestTimes[i].human_time + "</td></tr>");
+                            }
+                            secondCol += "</table></div>";
+                            co.append(secondCol);
+                            co.append("</div>")
+                        });
+                    }
+                    else {
+                        console.log(data);
+
+                        var rows = Math.ceil(data.screens.length / 2);
+                        console.log(rows);
+                        for (var row = 0; row < rows; row++) {
+                            co.append("<div class=\"row\">");
+                            for (var i = row * rows; i < row * rows + 2; i++) {
+                                if (i < data.screens.length) {
+                                    co.append("<div class=\"col-md-6\" data-load-url=\"" + data.screens[i].substring(1) + "\">Loading...</div>");
+                                    console.log("row " + row + " col " + (i - (row * rows)) + " array_item: " + i);
+                                }
+                            }
+                            co.append("</div>")
+                        }
+
+                        $(".col-md-6").each(function () {
+                            if ($(this).data("load-url")) {
+                                var thing = $(this);
+                                $.get(thing.data("load-url"), function (data) {
+                                    thing.text("");
+                                    thing.append("<h1 class=\"coolFont\">" + data.name + "</h1>");
+                                    thing.append("<br>");
+                                    var table = "<table class=\"table text-center\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
+
+                                    if (data.swims.length > 0) {
+                                        for (var i = 0; i < data.swims.length; i++) {
+                                            table += ("<tr><td>" + data.swims[i].place + "</td><td>" + data.swims[i].normal_event_name + "</td><td>" + data.swims[i].final_human + "</td><td>" + data.swims[i].meet_title + "</td></tr>");
+                                        }
+                                        table += "</table>";
+                                        thing.append(table);
+                                    } else {
+                                        table = "<p class=\"text-center\">No swims for this swimmer.</p>";
+                                        thing.append(table);
+                                    }
+
+                                    thing.append("<br>");
+                                    thing.append("<h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>");
+                                    thing.append("<br>");
+                                    table = "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
+                                    for (var i = 0; i < data.bestTimes.length; i++) {
+                                        table += ("<tr><td>" + data.bestTimes[i].event + "</td><td>" + data.bestTimes[i].human_time + "</td></tr>");
+                                    }
+                                    table += "</table>";
+                                    thing.append(table);
+                                })
+                            }
+                        });
+                    }
+                }
+                else if (data.type == "") {
+
+                }
+                else {
+                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\"> Screens: "+data.screens.length+"</h1></div><div class=\"col-md-4\"></div></div>");
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
