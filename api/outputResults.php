@@ -22,5 +22,7 @@ foreach ($states as $swim) {
     }
 }
 echo "\n\n\n";
-var_dump(linear_regression($x, $y));
+$a = linear_regression($x, $y);
+var_dump($a);
+echo "y = {$a}x+b";
 echo "</pre></body></html>";
