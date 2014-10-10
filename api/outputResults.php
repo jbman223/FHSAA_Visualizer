@@ -19,6 +19,7 @@ foreach ($states as $swim) {
     if ($swim[0] != 0) {
         $secondaryQuery->execute(array($eventName, $secondMeet, $swim["swimmer_id"]));
         $second = $secondaryQuery->fetchAll();
+        //make sure there is more than one result (there may be results in the parsing created from database transfer or other variables unaccounted for.
         if (count($second) > 0) {
             array_push($x, $second[0]["final_time"]);
             array_push($y, $swim["final_time"]);

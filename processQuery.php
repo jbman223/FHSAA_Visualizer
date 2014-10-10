@@ -71,7 +71,7 @@ function processInClause($inClause)
 
 function processQuery($query)
 {
-    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "and", "in");
+    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "time", "and", "in");
     $split = explode(" ", strtolower($query));
     $indices = array();
     $layout = array("screens" => 1, "type" => "");
@@ -314,22 +314,31 @@ function processQuery($query)
             $inClause = processInClause($inClause);
         }
 
+        if ($split[$indices[0]] == "predictions" && count($indices) > 1 && $split[$indices[1]] == "time") {
+            if ($indices[1] + 4 < count($split) && $inClause) {
+
+            } else {
+                array_push($errors, "Syntax error. When predicting a time, an in clause must be provided.");
+                endProgram(json_encode(array("errors" => $errors)));
+            }
+        }
+
         if ($indices[0] + 3 < count($split) && $split[$indices[0] + 1] == "class" && preg_match("#[1234]a#", $split[$indices[0] + 2]) && preg_match("#district|region|state|states#", $split[$indices[0] + 3])) {
             if (preg_match("#district|region#", $split[$indices[0] + 3])) {
                 if ($indices[0] + 4 < count($split) && preg_match("#[0-9]+#", $split[$indices[0] + 4])) {
                     if ($inClause) {
                         $inClause = urlencode($inClause);
-                        array_push($unparsedCommands, "/api/$command.php?meet=" . urlencode($split[$indices[0] + 1] . " " . $split[$indices[0] + 2] . " " . $split[$indices[0] + 3] . " " . $split[$indices[0] + 4]) . "&e=$inClause");
+                        array_push($unparsedCommands, "/api/$command.php?class=" . urlencode($split[$indices[0] + 2]) . "&type=" . urlencode($split[$indices[0] + 3]) . "&number=" . urlencode($split[$indices[0] + 4]) . "&e=$inClause");
                     } else {
-                        array_push($unparsedCommands, "/api/$command.php?meet=" . urlencode($split[$indices[0] + 1] . " " . $split[$indices[0] + 2] . " " . $split[$indices[0] + 3] . " " . $split[$indices[0] + 4]) . "");
+                        array_push($unparsedCommands, "/api/$command.php?class=" . urlencode($split[$indices[0] + 2]) . "&type=" . urlencode($split[$indices[0] + 3]) . "&number=" . urlencode($split[$indices[0] + 4]) . "");
                     }
                 }
             } else if (preg_match("#state|states#", $split[$indices[0] + 3])) {
                 if ($inClause) {
                     $inClause = urlencode($inClause);
-                    array_push($unparsedCommands, "/api/$command.php?meet=" . urlencode($split[$indices[0] + 1] . " " . $split[$indices[0] + 2] . " states") . "&e=$inClause");
+                    array_push($unparsedCommands, "/api/$command.php?class=" . urlencode($split[$indices[0] + 2]) . "&type=States" . "&e=$inClause");
                 } else {
-                    array_push($unparsedCommands, "/api/$command.php?meet=" . urlencode($split[$indices[0] + 1] . " " . $split[$indices[0] + 2] . " states") . "");
+                    array_push($unparsedCommands, "/api/$command.php?class=" . urlencode($split[$indices[0] + 2]) . "&type=States" . "");
                 }
             } else {
                 array_push($errors, "Syntax error. Please specify meet type. Ex: 'compare $command class 1a district 10'");
@@ -379,6 +388,6 @@ function processQuery($query)
     endProgram(json_encode($finalOutput));
 }
 
-//key words
+//query
 $query = $_POST['query'];
 processQuery($query);
