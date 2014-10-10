@@ -3,26 +3,31 @@ require_once "require.php";
 require_once "statisticalFunctions.php";
 
 echo "<html><body><pre>";
+$eventName = "Event 16  Boys 500 Yard Freestyle";
+//resp var
+$startingMeet = "States";
+//exp var
+$secondMeet = "Regions";
+$class = "%1A%";
 $x = array();
 $y = array();
 $state = $db->prepare("SELECT `final_time`, `swimmer_id` FROM swim_information WHERE event_name = ? AND meet_type = ? AND meet_title LIKE ?");
-$state->execute(array("Event 8  Boys 50 Yard Freestyle", "States", "%1A%"));
+$state->execute(array($eventName, $startingMeet, $class));
 $states = $state->fetchAll();
-$regionalQuery = $db->prepare("SELECT `final_time`, `swimmer_id` FROM swim_information WHERE event_name = ? AND meet_type = ? AND swimmer_id = ?");
-$districtQuery = $db->prepare("SELECT `final_time`, `swimmer_id` FROM swim_information WHERE event_name = ? AND meet_type = ? AND swimmer_id = ?");
+$secondaryQuery = $db->prepare("SELECT `final_time`, `swimmer_id` FROM swim_information WHERE event_name = ? AND meet_type = ? AND swimmer_id = ?");
 foreach ($states as $swim) {
     if ($swim[0] != 0) {
-        $regionalQuery->execute(array("Event 8  Boys 50 Yard Freestyle", "Regionals", $swim["swimmer_id"]));
-        $regions = $regionalQuery->fetch()["final_time"];
-        array_push($x, $regions);
-        array_push($y, $swim["final_time"]);
-        $districtQuery->execute(array("Event 8  Boys 50 Yard Freestyle", "Districts", $swim["swimmer_id"]));
-        $districts = $districtQuery->fetch()["final_time"];
-        echo $swim["final_time"]."\t".$regions."\t".$districts."\n";
+        $secondaryQuery->execute(array($eventName, $secondMeet, $swim["swimmer_id"]));
+        $secondary = $secondaryQuery->fetch();
+        if (count($secondary) == 1) {
+            array_push($x, $secondary["final_time"]);
+            array_push($y, $swim["final_time"]);
+            echo $secondary["final_time"] . "\t" . $swim["final_time"] . "\n";
+        }
     }
 }
 echo "\n\n\n";
 $a = linear_regression($x, $y);
 var_dump($a);
-echo "y = {$a}x+b";
+echo "y = {$a['a']}x + {$a['b']}";
 echo "</pre></body></html>";
