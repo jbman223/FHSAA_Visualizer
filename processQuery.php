@@ -71,7 +71,7 @@ function processInClause($inClause)
 
 function processQuery($query)
 {
-    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "time", "and", "in");
+    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "time", "and", "in", "from");
     $split = explode(" ", strtolower($query));
     $indices = array();
     $layout = array("screens" => 1, "type" => "");
@@ -316,7 +316,20 @@ function processQuery($query)
 
         if ($split[$indices[0]] == "predictions" && count($indices) > 1 && $split[$indices[1]] == "time") {
             if ($indices[1] + 4 < count($split) && $inClause) {
-
+                if (preg_match("#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#", $split[$indices[1] + 1])) {
+                    if ($indices[2] == "from") {
+                        if (preg_match("#district|regions|regionals|state#", $split[$indices[2]+1])) {
+                            //parse command like below and output linear regression time using initial one as exp and other one as resp
+                        }
+                    } else {
+                        if ($indices[1] + 3 < count($split) && $split[$indices[1] + 1] == "class" && preg_match("#[1234]a#", $split[$indices[1] + 2]) && preg_match("#district|region|state|states#", $split[$indices[1] + 3])) {
+                            //parse command and output smart linear regressioned time.
+                        }
+                    }
+                } else {
+                    array_push($errors, "Syntax error. When predicting a time, the time command must be immediately followed by the time. Ex. 'predictions time 32.40 class 1a states from districts in boys 50 free'");
+                    endProgram(json_encode(array("errors" => $errors)));
+                }
             } else {
                 array_push($errors, "Syntax error. When predicting a time, an in clause must be provided.");
                 endProgram(json_encode(array("errors" => $errors)));
