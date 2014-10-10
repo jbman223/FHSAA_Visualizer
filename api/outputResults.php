@@ -4,8 +4,10 @@ require_once "statisticalFunctions.php";
 
 echo "<html><body><pre>";
 $eventName = "Event 16  Boys 500 Yard Freestyle";
+//response variable
 $startingMeet = "States";
-$secondMeet = "Regionals";
+//explanatory variable
+$secondMeet = "Districts";
 $class = "%1A%";
 $x = array();
 $y = array();
