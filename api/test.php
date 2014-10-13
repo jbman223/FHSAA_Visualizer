@@ -1,7 +1,9 @@
 <?php
 require_once "require.php";
 require_once "../USASwimming/getSwimmerUSATimes.php";
+//require_once "../processQuery.php";
 
+//processQuery("predictions time 1:30.40 class 1a in mens 100 breast");
 //echo preg_match('#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#', "32.20");
 
 //$swimmer_id = getExistingSwimmerID("liam", "hollowsky");
