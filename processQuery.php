@@ -339,9 +339,7 @@ function processQuery($query)
                 array_push($errors, "Syntax error. When predicting a time, an in clause must be provided.");
                 endProgram(json_encode(array("errors" => $errors)));
             }
-        }
-
-        if ($indices[0] + 3 < count($split) && $split[$indices[0] + 1] == "class" && preg_match("#[1234]a#", $split[$indices[0] + 2]) && preg_match("#district|region|state|states#", $split[$indices[0] + 3])) {
+        } else if ($indices[0] + 3 < count($split) && $split[$indices[0] + 1] == "class" && preg_match("#[1234]a#", $split[$indices[0] + 2]) && preg_match("#district|region|state|states#", $split[$indices[0] + 3])) {
             if (preg_match("#district|region#", $split[$indices[0] + 3])) {
                 if ($indices[0] + 4 < count($split) && preg_match("#[0-9]+#", $split[$indices[0] + 4])) {
                     if ($inClause) {
