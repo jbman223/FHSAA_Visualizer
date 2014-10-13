@@ -317,9 +317,21 @@ function processQuery($query)
         if ($split[$indices[0]] == "predictions" && count($indices) > 1 && $split[$indices[1]] == "time") {
             if ($indices[1] + 3 < count($split) && $inClause) {
                 if (preg_match("#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#", $split[$indices[1] + 1])) {
-                    //no from clause, easier without.
+                    if ($indices[1]+3 < count($split)) {
+                        if (preg_match("#class#", $split[$indices[1] + 2]) && preg_match("#[0-4]a#", $split[$indices[1] + 3])) {
+                            $time = urlencode($split[$indices[1] + 1]);
+                            $class = urlencode($split[$indices[1] + 3]);
+                            array_push($unparsedCommands, "/api/predictions.php?type=time&time=$time&class=$class&e=$inClause");
+                        } else {
+                            array_push($errors, "Syntax error. When predicting a time, the time must be immediately followed by the class. Ex. 'predictions time 32.40 class 1a in boys 50 free'");
+                            endProgram(json_encode(array("errors" => $errors)));
+                        }
+                    } else {
+                        array_push($errors, "Syntax error. When predicting a time, the time must be immediately followed by the class. Ex. 'predictions time 32.40 class 1a in boys 50 free'");
+                        endProgram(json_encode(array("errors" => $errors)));
+                    }
                 } else {
-                    array_push($errors, "Syntax error. When predicting a time, the time command must be immediately followed by the time. Ex. 'predictions time 32.40 class 1a states from districts in boys 50 free'");
+                    array_push($errors, "Syntax error. When predicting a time, the time command must be immediately followed by the time. Ex. 'predictions time 32.40 class 1a in boys 50 free'");
                     endProgram(json_encode(array("errors" => $errors)));
                 }
             } else {

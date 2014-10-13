@@ -2,7 +2,7 @@
 require_once "require.php";
 require_once "../USASwimming/getSwimmerUSATimes.php";
 
-echo preg_match('#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#', "32.20");
+//echo preg_match('#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#', "32.20");
 
 //$swimmer_id = getExistingSwimmerID("liam", "hollowsky");
 //$state = $db->prepare("SELECT * FROM swim_information WHERE event_name = ?");
