@@ -298,6 +298,7 @@ function processQuery($query)
         $layout['type'] = "swimmer";
     } else if ($split[$indices[0]] == "predictions" || $split[$indices[0]] == "results") {
         $command = htmlspecialchars($split[$indices[0]]);
+        $layout["type"] = "predictions";
 
         if (in_array("and", $split)) {
             array_push($errors, "Syntax error. Only 'compare' may be followed by 'and', comparing two or more entities.");

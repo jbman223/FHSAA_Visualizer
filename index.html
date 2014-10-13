@@ -112,6 +112,7 @@
         var co = $("#commandOutput");
         co.html("");
         $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
+            console.log(data);
             $("#description").fadeOut("slow");
             $("#outputContainer").show();
             if (data.errors) {
@@ -196,7 +197,7 @@
                     }
                 }
                 else if (data.type == "") {
-
+                    console.log("eh");
                 }
                 else {
                     co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\"> Screens: "+data.screens.length+"</h1></div><div class=\"col-md-4\"></div></div>");
