@@ -108,6 +108,12 @@
         }
     });
 
+    function doubleTimeToStringTime(time) {
+        var minutes = Math.floor(time) / 60;
+        var seconds = Math.floor(time)-minutes*60;
+        var micro = ((time)-minutes*60-seconds);
+    }
+
     function onTimeout() {
         var co = $("#commandOutput");
         co.html("");
@@ -203,11 +209,20 @@
                     co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1></div><div class=\"col-md-4\"></div></div>");
 
                     if (data.screens.length == 1) {
-
+                        $.get(data.screens[0].substring(1), function (e) {
+                            var newHTML = "<div class=\"row\"><div class=\"col-md-12\"><p class=\"coolFont whiteColor\"><ul>";
+                           console.log(e);
+                            for (var i = 0; i < e.length; i++) {
+                                console.log(e[i].time);
+                                newHTML += ("<li>If you swam that time at "+e[i].goingFrom+" you would swim a "+e[i].time+" at "+e[i].to+"</li>");
+                            }
+                            newHTML += ("</ul></p></div></div>");
+                            co.fadeOut("slow").html(newHTML).fadeIn("slow");
+                        });
                     }
                 }
                 else {
-                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\"> Screens: "+data.screens.length+"</h1></div><div class=\"col-md-4\"></div></div>");
+                    co.html("<div class=\"row\"><div class=\"col-md-2\"></div><div class=\"col-md-8\"><h1 class=\"coolFont whiteColor\"> Screens: "+data.screens.length+"</h1></div><div class=\"col-md-2\"></div></div>");
                 }
             }
         });
