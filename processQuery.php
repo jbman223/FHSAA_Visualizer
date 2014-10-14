@@ -298,7 +298,6 @@ function processQuery($query)
         $layout['type'] = "swimmer";
     } else if ($split[$indices[0]] == "predictions" || $split[$indices[0]] == "results") {
         $command = htmlspecialchars($split[$indices[0]]);
-        $layout["type"] = "predictions";
 
         if (in_array("and", $split)) {
             array_push($errors, "Syntax error. Only 'compare' may be followed by 'and', comparing two or more entities.");
@@ -322,6 +321,7 @@ function processQuery($query)
                         if (preg_match("#class#", $split[$indices[1] + 2]) && preg_match("#[0-4]a#", $split[$indices[1] + 3])) {
                             $time = urlencode($split[$indices[1] + 1]);
                             $class = urlencode($split[$indices[1] + 3]);
+                            $inClause = urlencode($inClause);
                             array_push($unparsedCommands, "/api/predictions.php?type=time&time=$time&class=$class&e=$inClause");
                         } else {
                             array_push($errors, "Syntax error. When predicting a time, the time must be immediately followed by the class. Ex. 'predictions time 32.40 class 1a in boys 50 free'");
