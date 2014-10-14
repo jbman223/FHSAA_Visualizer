@@ -84,6 +84,7 @@
 </div>
 
 <script type="text/javascript">
+    doubleTimeToStringTime(124.56);
     var timeout;
     $("#mainInput").keypress(function (e) {
         if (e.which == 13) e.preventDefault();
@@ -108,10 +109,16 @@
         }
     });
 
+    function pad (str, max) {
+        str = str.toString();
+        return str.length < max ? pad("0" + str, max) : str;
+    }
+
     function doubleTimeToStringTime(time) {
-        var minutes = Math.floor(time) / 60;
+        var minutes = Math.floor(Math.floor(time) / 60);
         var seconds = Math.floor(time)-minutes*60;
-        var micro = ((time)-minutes*60-seconds);
+        var micro = Math.floor(((time)-minutes*60-seconds)*100);
+        return (pad(minutes, 2)+":"+pad(seconds, 2)+"."+pad(micro, 2));
     }
 
     function onTimeout() {
@@ -210,14 +217,17 @@
 
                     if (data.screens.length == 1) {
                         $.get(data.screens[0].substring(1), function (e) {
+                            console.log("start parsing results!");
                             var newHTML = "<div class=\"row\"><div class=\"col-md-12\"><p class=\"coolFont whiteColor\"><ul>";
                            console.log(e);
                             for (var i = 0; i < e.length; i++) {
                                 console.log(e[i].time);
-                                newHTML += ("<li>If you swam that time at "+e[i].goingFrom+" you would swim a "+e[i].time+" at "+e[i].to+"</li>");
+                                newHTML += ("<li>If you swam that time at "+e[i].goingFrom+" you would swim a "+doubleTimeToStringTime(e[i].time)+" at "+e[i].to+"</li>");
                             }
                             newHTML += ("</ul></p></div></div>");
                             co.fadeOut("slow").html(newHTML).fadeIn("slow");
+                        }).fail(function() {
+                            alert( "error" );
                         });
                     }
                 }
