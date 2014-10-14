@@ -61,6 +61,11 @@
         th {
             text-align: center;
         }
+
+        .progress-bar {
+            -webkit-transition: width 12s ease-in-out;
+            transition: width 12s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +129,7 @@
     function onTimeout() {
         var co = $("#commandOutput");
         co.html("");
+        $("#mainInput").blur();
         $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
             console.log(data);
             $("#description").fadeOut("slow");
@@ -213,7 +219,15 @@
                     console.log("eh");
                 } else if (data.type == "results") {
                     console.log("start parsing results!");
-                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1></div><div class=\"col-md-4\"></div></div>");
+                    var progressBar = "<div class=\"progress\">"+
+                            "<div class=\"progress-bar progress-bar-striped active\"  role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\">"+
+                            "</div>"+
+                            "</div>";
+                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1><br>"+progressBar+"</div><div class=\"col-md-4\"></div></div>");
+                    $(".progress-bar").each(function(){
+                        bar_width = $(this).attr('aria-valuenow');
+                        $(this).width(bar_width + '%');
+                    });
 
                     if (data.screens.length == 1) {
                         $.get(data.screens[0].substring(1), function (e) {
