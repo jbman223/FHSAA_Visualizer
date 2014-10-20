@@ -233,10 +233,13 @@
                         $.get(data.screens[0].substring(1), function (e) {
                             console.log("start parsing results!");
                             var newHTML = "<div class=\"row\"><div class=\"col-md-12\"><p class=\"coolFont whiteColor\"><ul>";
-                           console.log(e);
+                            console.log(e);
+                            //var start = e.startTime;
+                            //delete e.startTime;
+                            console.log("hello");
                             for (var i = 0; i < e.length; i++) {
                                 console.log(e[i].time);
-                                newHTML += ("<li>If you swam that time at "+e[i].goingFrom+" you would swim a "+doubleTimeToStringTime(e[i].time)+" at "+e[i].to+"</li>");
+                                newHTML += ("<li>If you swam a "+e[i].startTime+" at "+e[i].goingFrom+" you would swim a "+doubleTimeToStringTime(e[i].time)+" at "+e[i].to+"</li>");
                             }
                             newHTML += ("</ul></p></div></div>");
                             co.fadeOut("slow").html(newHTML).fadeIn("slow");

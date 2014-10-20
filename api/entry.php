@@ -13,19 +13,19 @@ if (isset($_POST['f_name'], $_POST['l_name'])) {
             foreach ($bestTimes as $value) {
                 addSwimmerTime($id, $value["event"], $value["time"], $value["date"]);
             }
-            addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $id);
+            addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $id, $_POST['year']);
         } else {
             $id = createNewSwimmer($_POST['f_name'], $_POST['l_name']);
             $bestTimes = getTimes($_POST['f_name'], $_POST['l_name']);
             foreach ($bestTimes as $value) {
                 addSwimmerTime($id, $value["event"], $value["time"], $value["date"]);
             }
-            addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $id);
+            addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $id,  $_POST['year']);
         }
     } else {
         echo "old";
         $swimmer_id = getExistingSwimmerID($_POST['f_name'], $_POST['l_name']);
-        addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $swimmer_id);
+        addResult($_POST['place'], $_POST['grade'], $_POST['school'], $_POST['seed_time'], $_POST['seed_human'], $_POST['final_time'], $_POST['final_human'], $_POST['meet_title'], $_POST['event_name'], $_POST['normal_event_name'], $_POST['meet_type'], $_POST['finals_swim']=="F"?1:0, $swimmer_id,  $_POST['year']);
     }
 } else {
     echo "ga";
