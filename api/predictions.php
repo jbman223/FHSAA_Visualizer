@@ -38,4 +38,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
     }
 } else if (isset($_GET['meet'])) {
 
+} else if (isset($_GET['class']) && (isset($_GET['type']) && $_GET['type'] == "time")) {
+    //get top district times
+
 }
