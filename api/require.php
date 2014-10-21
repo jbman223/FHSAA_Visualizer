@@ -67,8 +67,9 @@ function addSwimmerTime ($id, $event, $time, $date) {
 
 function addResult($place, $grade, $school, $seed_time, $seed_human, $final_time, $final_human, $meet_title, $event_name, $normal_event_name, $meet_type, $finals_swim, $swimmer_id, $year) {
     global $db;
-    $state = $db->prepare("INSERT INTO `fhsaa`.`swim_information` (`place`, `grade`, `school`, `seed_time`, `seed_human`, `final_time`, `final_human`, `meet_title`, `event_name`, `normal_event_name`, `meet_type`, `finals_swim`, `swimmer_id`, `year`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $state->execute(array($place, $grade, $school, $seed_time, $seed_human, $final_time, $final_human, $meet_title, $event_name, $normal_event_name, $meet_type, $finals_swim, $swimmer_id, $year));
+    $state = $db->prepare("INSERT INTO swim_information (`place`, `grade`, `school`, `seed_time`, `seed_human`, `final_time`, `final_human`, `meet_title`, `event_name`, `normal_event_name`, `meet_type`, `finals_swim`, `swimmer_id`, `year`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    //echo "INSERT INTO swim_information (`place`, `grade`, `school`, `seed_time`, `seed_human`, `final_time`, `final_human`, `meet_title`, `event_name`, `normal_event_name`, `meet_type`, `finals_swim`, `swimmer_id`, `year`) VALUES ('$place', '$grade', '$school', '$seed_time', '$seed_human', '$final_time', '$final_human', '$meet_title', '$event_name', '$normal_event_name', '$meet_type', '$finals_swim', '$swimmer_id', '$year')";
+    $state->execute(array($place, $grade, $school, $seed_time, $seed_human, $final_time, $final_human, $meet_title, $event_name, $normal_event_name, $meet_type, $finals_swim, $swimmer_id, intval($year)));
 }
 
 function timeToDouble($time) {

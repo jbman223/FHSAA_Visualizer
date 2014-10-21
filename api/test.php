@@ -10,18 +10,23 @@ echo "<pre>";
 for ($i = 1; $i <= 12; $i++) {
     $swims[$i] = array();
     $state = $db->prepare("SELECT final_time FROM swim_information WHERE event_name = ? AND meet_title = ? AND final_time != 0 ORDER BY final_time ASC LIMIT 0, 8 ");
-    $state->execute(array(urldecode("Event+16++Boys+500+Yard+Freestyle"), "FHSAA 2A District $i Championship"));
+    $state->execute(array(urldecode("Event+16++Boys+500+Yard+Freestyle"), "FHSAA 1A District $i Championship"));
     $cSwims = $state->fetchAll(PDO::FETCH_ASSOC);
     for ($a = 0; $a < count($cSwims); $a++) {
-        array_push($swims[$i], $cSwims[$a]);
+        array_push($swims[$i], $cSwims[$a]['final_time']);
     }
     //echo "District $i <br>";
 }
 
 
-foreach ($swims as $districtNumber => $swim) {
-    $average = array_sum($swim);
-    echo "Average time for District $districtNumber is ".$average."<br>";
+for ($i = 1; $i <= count($swims); $i++) {
+    print_r($swims[$i]);
+    if (count($swims[$i]) != 0) {
+        $average = array_sum($swims[$i])/count($swims[$i]);
+        echo "Average time for District $i is ".$average."<br>";
+    } else {
+        echo "District $i contains an error in original import<br>";
+    }
 }
 
 echo "</pre>";
