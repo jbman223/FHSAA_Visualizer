@@ -129,7 +129,7 @@
     function onTimeout() {
         var co = $("#commandOutput");
         co.html("");
-        $("#mainInput").blur();
+        //$("#mainInput").blur();
         $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
             console.log(data);
             $("#description").fadeOut("slow");

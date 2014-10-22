@@ -57,7 +57,7 @@ foreach ($events as $event) {
         $swimmerArray = $swimmer->fetchAll(PDO::FETCH_ASSOC);
         //echo "".$swimmerArray[0]['f_name']." ".$swimmerArray[0]['l_name']." will likely swim a ".($linearRegression['a']*$thing['final_time']+$linearRegression['b'])." at districts this year.<br>";
         array_push($predictions[$i], array("name" => $swimmerArray[0]['f_name']." ".$swimmerArray[0]['l_name'], "time" => ($linearRegression['a']*$thing['final_time']+$linearRegression['b']), "event" => $event));
-
+        //addLogMeetThing($swimmerArray[0]['f_name']." ".$swimmerArray[0]['l_name'], ($linearRegression['a']*$thing['final_time']+$linearRegression['b']), $event);
     }
     //print_r($things);
     //echo $event."<br>";
@@ -66,6 +66,8 @@ foreach ($events as $event) {
 }
 
 print_r(json_encode($predictions));
+
+
 
 //$state = $db->prepare("SELECT final_time, swimmer_id FROM swim_information WHERE meet_type = ? AND `year` = ? AND final_time != 0 AND event_name = ?");
 //$state->execute(array("Counties", "2013", $event));
