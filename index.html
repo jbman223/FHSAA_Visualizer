@@ -141,6 +141,13 @@
                         console.log(data);
                         co.html("<h3 class=\"coolFont\">Loading...</h3>")
                         $.get(data.screens[0].substring(1), function (e) {
+                            console.log(e);
+                            if (e.error) {
+                                co.html("");
+                                co.append("<h1 class=\"coolFont\">" + e.error + "</h1>");
+                                return;
+                            }
+
                             co.html("");
                             co.append("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont\">" + e.name + "</h1></div><div class=\"col-md-4\"></div></div>");
                             co.append("<div class=\"row\">");
@@ -184,6 +191,13 @@
                             if ($(this).data("load-url")) {
                                 var thing = $(this);
                                 $.get(thing.data("load-url"), function (data) {
+                                    console.log(data);
+                                    if (data.error) {
+                                        thing.text("");
+                                        thing.append("<h1 class=\"coolFont\">" + data.error + "</h1>");
+                                        return;
+                                    }
+
                                     thing.text("");
                                     thing.append("<h1 class=\"coolFont\">" + data.name + "</h1>");
                                     thing.append("<br>");

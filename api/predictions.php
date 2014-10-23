@@ -44,6 +44,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
 } else if (isset($_GET['f'], $_GET['l'])) {
     $totalRet = array();
 
+    $totalRet["swimmerName"] = ucfirst(urldecode($_GET['f'])." ".urldecode($_GET['l']));
     $totalRet['logPredictions'] = array();
     $state = $db->prepare("SELECT * FROM log_predictions WHERE name = ?");
     $state->execute(array(urldecode($_GET['f'])." ".urldecode($_GET['l'])));
