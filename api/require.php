@@ -74,7 +74,7 @@ function addResult($place, $grade, $school, $seed_time, $seed_human, $final_time
 
 function addLogMeetThing($name, $time, $event) {
     global $db;
-    $state = $db->prepare("INSERT INTO `fhsaa`.`log_predictions` (`name`, `time`, `event`)VALUES (?, ?, ?);");
+    $state = $db->prepare("INSERT INTO `fhsaa`.`log_predictions` (`name`, `time`, `event`) VALUES (?, ?, ?);");
     $state->execute(array($name, $time, $event));
 }
 

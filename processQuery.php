@@ -297,6 +297,7 @@ function processQuery($query)
 
         $layout['type'] = "swimmer";
     } else if ($split[$indices[0]] == "predictions" || $split[$indices[0]] == "results") {
+        $layout['type'] = "results";
         $command = htmlspecialchars($split[$indices[0]]);
 
         if (in_array("and", $split)) {
@@ -315,6 +316,7 @@ function processQuery($query)
         }
 
         if ($split[$indices[0]] == "predictions" && count($indices) > 1 && $split[$indices[1]] == "time") {
+            $layout['type'] = "predictions";
             if ($indices[1] + 3 < count($split) && $inClause) {
                 if (preg_match("#([0-9]{1,2}:)?([0-9][0-9])\\.([0-9][0-9])#", $split[$indices[1] + 1])) {
                     if ($indices[1]+3 < count($split)) {
@@ -360,11 +362,26 @@ function processQuery($query)
                 array_push($errors, "Syntax error. Please specify meet type. Ex: 'compare $command class 1a district 10'");
                 endProgram(json_encode(array("errors" => $errors)));
             }
+        } else if ($split[$indices[0]] == "predictions" && ($indices[0] + 2 < count($split) || $indices[0] + 3 < count($split))) {
+            $layout['type'] = "swimmer_predictions";
+            $f = "";
+            $l = "";
+            if ($indices[0] + 3 < count($split)) {
+                $f = urlencode($split[$indices[0] + 1]);
+                $l = urlencode($split[$indices[0] + 3]);
+            } else {
+                $f = urlencode($split[$indices[0] + 1]);
+                $l = urlencode($split[$indices[0] + 2]);
+            }
+            if ($inClause) {
+                array_push($unparsedCommands, "/api/$command.php?f=" . $f . "&l=" . $l . "&in=" . $inClause . "");
+            } else {
+                array_push($unparsedCommands, "/api/$command.php?f=" . $f . "&l=" . $l);
+            }
         } else {
             array_push($errors, "Syntax error. Please specify the class. Ex: 'compare $command class 1a district 10'");
             endProgram(json_encode(array("errors" => $errors)));
         }
-        $layout['type'] = "results";
     } else if ($split[$indices[0]] == "school") {
         if (in_array("and", $split)) {
             array_push($errors, "Syntax error. Only 'compare' may be followed by 'and', comparing two or more entities.");
