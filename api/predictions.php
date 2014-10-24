@@ -34,6 +34,23 @@ function predictTime($meetPairs, $eventName, $class, $time) {
     return $ret;
 }
 
+function amountOfYards ($eventName) {
+    if (strstr($eventName, "500")) {
+        return 10;
+    } else if (strstr($eventName, "200")) {
+        return 4;
+    }  else if (strstr($eventName, "100")) {
+        return 2;
+    } else if (strstr($eventName, "50")) {
+        return 1;
+    }
+    return 1;
+}
+
+function adjustedPredictionTime($event, $timeChangePerLength) {
+    return (amountOfYards($event) * $timeChangePerLength);
+}
+
 if (isset($_GET['type']) && $_GET['type'] == "time") {
     if (isset($_GET['class']) && isset($_GET['e'])) {
         $eventName = urldecode($_GET['e']);
@@ -57,7 +74,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
     $swimmerIdStatement->execute(array(urldecode($_GET['f']), urldecode($_GET['l'])));
     $swimmer_id = $swimmerIdStatement->fetchAll(PDO::FETCH_ASSOC)[0]['id'];
 
-    $totalRet['willMakeStates'] = "";
+    $totalRet['willMakeStates'] = array();
     //predict if the swimmer will make states this year
     //get events swimmer has swam so far
     $alpha = $db->prepare("SELECT * FROM swim_information WHERE swimmer_id = ? AND `year` = ? AND meet_type = ?");
@@ -65,32 +82,40 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
     $swims = $alpha->fetchAll(PDO::FETCH_ASSOC);
     $fastestTime = $db->prepare("SELECT seed_time FROM swim_information WHERE `year` = ? AND meet_title LIKE ? AND event_name = ? AND finals_swim = 0 ORDER BY seed_time DESC LIMIT 0, 1");
     foreach ($swims as $swim) {
+        $thisEvent = array();
         //get event name
         $event = $swim['event_name'];
+        $thisEvent['event'] = $event;
         //get class
         $class = explode(" ", $swim['meet_title'])[1];
         $classLong = "FHSAA Championship - Class $class%";
 
         $fastestTime->execute(array("2013", $classLong, $event));
         $time = $fastestTime->fetchAll(PDO::FETCH_ASSOC)[0]['seed_time'];
+        $thisEvent['leastTime'] = $time;
 
         $meetPairs = array("Districts" => "Regionals");
         $predictedTime = predictTime($meetPairs, $event, "%".$class."%", $swim['final_time'])[0]['time'];
-        $totalRet['predictedTime'] = $predictedTime;
+        $thisEvent['predictedTime'] = $predictedTime;
 
-        if ($predictedTime < $time-10) {
-            $totalRet['willMakeStates'] = "Highly Likely";
-        } else if ($predictedTime < $time-5) {
-            $totalRet['willMakeStates'] = "Very Likely";
+        $thisEvent['actualTime'] = $swim['final_time'];
+        $meetPairs = array("Districts" => "States");
+        $thisEvent['predictedTimeStates'] = predictTime($meetPairs, $event, "%".$class."%", $swim['final_time'])[0]['time'];
+
+        if ($predictedTime < $time-adjustedPredictionTime($event, 1.3)) {
+            $thisEvent['willMakeStates'] = "Highly Likely";
+        } else if ($predictedTime < $time-adjustedPredictionTime($event, 0.8)) {
+            $thisEvent['willMakeStates'] = "Very Likely";
         } else if ($predictedTime <= $time) {
-            $totalRet['willMakeStates'] = "Likely";
-        } else if ($predictedTime <= $time+2) {
-            $totalRet['willMakeStates'] = "Unlikely";
-        } else if ($predictedTime <= $time+10) {
-            $totalRet['willMakeStates'] = "Very Unlikely";
+            $thisEvent['willMakeStates'] = "Likely";
+        } else if ($predictedTime <= $time+adjustedPredictionTime($event, 0.5)) {
+            $thisEvent['willMakeStates'] = "Unlikely";
+        } else if ($predictedTime <= $time+adjustedPredictionTime($event, 1.3)) {
+            $thisEvent['willMakeStates'] = "Very Unlikely";
         } else {
-            $totalRet['willMakeStates'] = "Highly Unlikely";
+            $thisEvent['willMakeStates'] = "Highly Unlikely";
         }
+        array_push($totalRet['willMakeStates'], $thisEvent);
     }
 
     //log predictions if there are any

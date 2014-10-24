@@ -63,8 +63,8 @@
         }
 
         .progress-bar {
-            -webkit-transition: width 0.5s ease-in-out;
-            transition: width 0.5s ease-in-out;
+            -webkit-transition: width 2s ease-in-out;
+            transition: width 2s ease-in-out;
         }
     </style>
 </head>
@@ -84,264 +84,291 @@
     <p id="description">
         <br>
         Enter a command to see results, swimmers, schools, and predictions. Use the compare keyword to compare any of
-        the previous. <b>This is still a work in progress and only the 'swimmer' commands work.</b> <b>Type 'help' for more help.</b>
+        the previous. <b>This is still a work in progress and only the 'swimmer' commands work.</b> <b>Type 'help' for
+        more help.</b>
     </p>
 </div>
 
 <script type="text/javascript">
-    var timeout;
-    $("#mainInput").keypress(function (e) {
-        if (e.which == 13) e.preventDefault();
-        if (timeout != null)
-            clearTimeout(timeout);
-        timeout = setTimeout("onTimeout()", 700);
+if (!String.prototype.contains) {
+    String.prototype.contains = function () {
+        return String.prototype.indexOf.apply(this, arguments) !== -1;
+    };
+}
 
-        $("#outputContainer").show()
-    });
+var timeout;
+$("#mainInput").keypress(function (e) {
+    if (e.which == 13) e.preventDefault();
+    if (timeout != null)
+        clearTimeout(timeout);
+    timeout = setTimeout("onTimeout()", 700);
 
-    $("#commandOutput").on("click", ".expand-button", function (e) {
-        //console.log("hi")
-        if ($(this).data("expanded") == "true") {
-            console.log($(this).parent().parent());
-            $(this).html("<span class=\"glyphicon glyphicon-plus\"></span></button>");
-            $(this).parent().parent().find(".usa-swimming-table").fadeOut("slow");
-            $(this).data("expanded", "false");
-        } else {
-            $(this).html("<span class=\"glyphicon glyphicon-minus\"></span></button>");
-            $(this).parent().parent().find(".usa-swimming-table").fadeIn("slow");
-            $(this).data("expanded", "true");
-        }
-    });
+    $("#outputContainer").show()
+});
 
-    function pad (str, max) {
-        str = str.toString();
-        return str.length < max ? pad("0" + str, max) : str;
+$("#commandOutput").on("click", ".expand-button", function (e) {
+    //console.log("hi")
+    if ($(this).data("expanded") == "true") {
+        console.log($(this).parent().parent());
+        $(this).html("<span class=\"glyphicon glyphicon-plus\"></span></button>");
+        $(this).parent().parent().find(".usa-swimming-table").fadeOut("slow");
+        $(this).data("expanded", "false");
+    } else {
+        $(this).html("<span class=\"glyphicon glyphicon-minus\"></span></button>");
+        $(this).parent().parent().find(".usa-swimming-table").fadeIn("slow");
+        $(this).data("expanded", "true");
     }
+});
 
-    function doubleTimeToStringTime(time) {
-        var minutes = Math.floor(Math.floor(time) / 60);
-        var seconds = Math.floor(time)-minutes*60;
-        var micro = Math.floor(((time)-minutes*60-seconds)*100);
-        return (pad(minutes, 2)+":"+pad(seconds, 2)+"."+pad(micro, 2));
-    }
+function pad(str, max) {
+    str = str.toString();
+    return str.length < max ? pad("0" + str, max) : str;
+}
 
-    function amountOfYards (eventName) {
-        if (eventName.contains("500")) {
-            return 10;
-        } else if (eventName.contains("200")) {
-            return 4;
-        }  else if (eventName.contains("100")) {
-            return 2;
-        } else if (eventName.contains("50")) {
-            return 1;
-        }
+function doubleTimeToStringTime(time) {
+    var minutes = Math.floor(Math.floor(time) / 60);
+    var seconds = Math.floor(time) - minutes * 60;
+    var micro = Math.floor(((time) - minutes * 60 - seconds) * 100);
+    return (pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(micro, 2));
+}
+
+function amountOfYards(eventName) {
+    if (eventName.contains("500")) {
+        return 10;
+    } else if (eventName.contains("200")) {
+        return 4;
+    } else if (eventName.contains("100")) {
+        return 2;
+    } else if (eventName.contains("50")) {
         return 1;
     }
+    return 1;
+}
 
 
-    function onTimeout() {
-        var co = $("#commandOutput");
-        co.html("");
-        //$("#mainInput").blur();
-        $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
-            console.log(data);
-            $("#description").fadeOut("slow");
-            $("#outputContainer").show();
-            if (data.errors) {
-                co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\">" + data.errors[0] + "</div><div class=\"col-md-4\"></div></div>");
-            } else {
-                if (data.type == "swimmer") {
-                    if (data.screens.length == 1) {
-                        console.log(data);
-                        co.html("<h3 class=\"coolFont\">Loading...</h3>")
-                        $.get(data.screens[0].substring(1), function (e) {
-                            console.log(e);
-                            if (e.error) {
-                                co.html("");
-                                co.append("<h1 class=\"coolFont\">" + e.error + "</h1>");
-                                return;
-                            }
-
+function onTimeout() {
+    var co = $("#commandOutput");
+    co.html("");
+    //$("#mainInput").blur();
+    $.post("processQuery.php", {query: $("#mainInput").val()}, function (data) {
+        console.log(data);
+        $("#description").fadeOut("slow");
+        $("#outputContainer").show();
+        if (data.errors) {
+            co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\">" + data.errors[0] + "</div><div class=\"col-md-4\"></div></div>");
+        } else {
+            if (data.type == "swimmer") {
+                if (data.screens.length == 1) {
+                    console.log(data);
+                    co.html("<h3 class=\"coolFont\">Loading...</h3>")
+                    $.get(data.screens[0].substring(1), function (e) {
+                        console.log(e);
+                        if (e.error) {
                             co.html("");
-                            co.append("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont\">" + e.name + "</h1></div><div class=\"col-md-4\"></div></div>");
-                            co.append("<div class=\"row\">");
-                            var firstCol = "<div class='col-md-6'>";
-                            firstCol += "<h3 class=\"coolFont\">State Series Swims</h3><br>";
-                            firstCol += "<table class=\"table\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
-                            for (var i = 0; i < e.swims.length; i++) {
-                                firstCol += ("<tr><td>" + e.swims[i].place + "</td><td>" + e.swims[i].normal_event_name + "</td><td>" + e.swims[i].final_human + "</td><td>" + e.swims[i].meet_title + "</td></tr>");
-                            }
-                            firstCol += "</table></div>";
-                            co.append(firstCol);
-
-                            var secondCol = "<div class='col-md-6'><h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>";
-                            secondCol += "<br>";
-                            secondCol += "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
-                            for (var i = 0; i < e.bestTimes.length; i++) {
-                                secondCol += ("<tr><td>" + e.bestTimes[i].event + "</td><td>" + e.bestTimes[i].human_time + "</td></tr>");
-                            }
-                            secondCol += "</table></div>";
-                            co.append(secondCol);
-                            co.append("</div>")
-                        });
-                    }
-                    else {
-                        console.log(data);
-
-                        var rows = Math.ceil(data.screens.length / 2);
-                        console.log(rows);
-                        for (var row = 0; row < rows; row++) {
-                            co.append("<div class=\"row\">");
-                            for (var i = row * rows; i < row * rows + 2; i++) {
-                                if (i < data.screens.length) {
-                                    co.append("<div class=\"col-md-6\" data-load-url=\"" + data.screens[i].substring(1) + "\">Loading...</div>");
-                                    console.log("row " + row + " col " + (i - (row * rows)) + " array_item: " + i);
-                                }
-                            }
-                            co.append("</div>")
+                            co.append("<h1 class=\"coolFont\">" + e.error + "</h1>");
+                            return;
                         }
 
-                        $(".col-md-6").each(function () {
-                            if ($(this).data("load-url")) {
-                                var thing = $(this);
-                                $.get(thing.data("load-url"), function (data) {
-                                    console.log(data);
-                                    if (data.error) {
-                                        thing.text("");
-                                        thing.append("<h1 class=\"coolFont\">" + data.error + "</h1>");
-                                        return;
-                                    }
+                        co.html("");
+                        co.append("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont\">" + e.name + "</h1></div><div class=\"col-md-4\"></div></div>");
+                        co.append("<div class=\"row\">");
+                        var firstCol = "<div class='col-md-6'>";
+                        firstCol += "<h3 class=\"coolFont\">State Series Swims</h3><br>";
+                        firstCol += "<table class=\"table\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
+                        for (var i = 0; i < e.swims.length; i++) {
+                            firstCol += ("<tr><td>" + e.swims[i].place + "</td><td>" + e.swims[i].normal_event_name + "</td><td>" + e.swims[i].final_human + "</td><td>" + e.swims[i].meet_title + "</td></tr>");
+                        }
+                        firstCol += "</table></div>";
+                        co.append(firstCol);
 
+                        var secondCol = "<div class='col-md-6'><h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>";
+                        secondCol += "<br>";
+                        secondCol += "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
+                        for (var i = 0; i < e.bestTimes.length; i++) {
+                            secondCol += ("<tr><td>" + e.bestTimes[i].event + "</td><td>" + e.bestTimes[i].human_time + "</td></tr>");
+                        }
+                        secondCol += "</table></div>";
+                        co.append(secondCol);
+                        co.append("</div>")
+                    });
+                }
+                else {
+                    console.log(data);
+
+                    var rows = Math.ceil(data.screens.length / 2);
+                    console.log(rows);
+                    for (var row = 0; row < rows; row++) {
+                        co.append("<div class=\"row\">");
+                        for (var i = row * rows; i < row * rows + 2; i++) {
+                            if (i < data.screens.length) {
+                                co.append("<div class=\"col-md-6\" data-load-url=\"" + data.screens[i].substring(1) + "\">Loading...</div>");
+                                console.log("row " + row + " col " + (i - (row * rows)) + " array_item: " + i);
+                            }
+                        }
+                        co.append("</div>")
+                    }
+
+                    $(".col-md-6").each(function () {
+                        if ($(this).data("load-url")) {
+                            var thing = $(this);
+                            $.get(thing.data("load-url"), function (data) {
+                                console.log(data);
+                                if (data.error) {
                                     thing.text("");
-                                    thing.append("<h1 class=\"coolFont\">" + data.name + "</h1>");
-                                    thing.append("<br>");
-                                    var table = "<table class=\"table text-center\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
+                                    thing.append("<h1 class=\"coolFont\">" + data.error + "</h1>");
+                                    return;
+                                }
 
-                                    if (data.swims.length > 0) {
-                                        for (var i = 0; i < data.swims.length; i++) {
-                                            table += ("<tr><td>" + data.swims[i].place + "</td><td>" + data.swims[i].normal_event_name + "</td><td>" + data.swims[i].final_human + "</td><td>" + data.swims[i].meet_title + "</td></tr>");
-                                        }
-                                        table += "</table>";
-                                        thing.append(table);
-                                    } else {
-                                        table = "<p class=\"text-center\">No swims for this swimmer.</p>";
-                                        thing.append(table);
-                                    }
+                                thing.text("");
+                                thing.append("<h1 class=\"coolFont\">" + data.name + "</h1>");
+                                thing.append("<br>");
+                                var table = "<table class=\"table text-center\"><tr><th>Place</th><th>Event Name</th><th>Time</th><th>Meet</th></tr>";
 
-                                    thing.append("<br>");
-                                    thing.append("<h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>");
-                                    thing.append("<br>");
-                                    table = "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
-                                    for (var i = 0; i < data.bestTimes.length; i++) {
-                                        table += ("<tr><td>" + data.bestTimes[i].event + "</td><td>" + data.bestTimes[i].human_time + "</td></tr>");
+                                if (data.swims.length > 0) {
+                                    for (var i = 0; i < data.swims.length; i++) {
+                                        table += ("<tr><td>" + data.swims[i].place + "</td><td>" + data.swims[i].normal_event_name + "</td><td>" + data.swims[i].final_human + "</td><td>" + data.swims[i].meet_title + "</td></tr>");
                                     }
                                     table += "</table>";
                                     thing.append(table);
-                                })
-                            }
-                        });
-                    }
-                }
-                else if (data.type == "") {
-                    console.log("eh");
-                } else if (data.type == "predictions") {
-                    console.log("start parsing results!");
-                    var progressBar = "<div class=\"progress\">"+
-                            "<div class=\"progress-bar progress-bar-striped active\"  role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\">"+
-                            "</div>"+
-                            "</div>";
-                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1><br>"+progressBar+"</div><div class=\"col-md-4\"></div></div>");
-                    $(".progress-bar").each(function(){
-                        bar_width = $(this).attr('aria-valuenow');
-                        $(this).width(bar_width + '%');
-                    });
-
-                    if (data.screens.length == 1) {
-                        $.get(data.screens[0].substring(1), function (e) {
-                            console.log("start parsing results!");
-                            var newHTML = "<div class=\"row\"><div class=\"col-md-12\"><p class=\"coolFont whiteColor\"><ul>";
-                            console.log(e);
-                            //var start = e.startTime;
-                            //delete e.startTime;
-                            console.log("hello");
-                            for (var i = 0; i < e.length; i++) {
-                                console.log(e[i].time);
-                                newHTML += ("<li>If you swam a "+e[i].startTime+" at "+e[i].goingFrom+" you would swim a "+doubleTimeToStringTime(e[i].time)+" at "+e[i].to+"</li>");
-                            }
-                            newHTML += ("</ul></p></div></div>");
-                            co.fadeOut("slow").html(newHTML).fadeIn("slow");
-                        }).fail(function() {
-                            alert( "error" );
-                        });
-                    }
-                } else if (data.type == "swimmer_predictions") {
-                    var progressBar = "<div class=\"progress\">"+
-                            "<div class=\"progress-bar progress-bar-striped active\"  role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\">"+
-                            "</div>"+
-                            "</div>";
-                    co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1><br>"+progressBar+"</div><div class=\"col-md-4\"></div></div>");
-                    $(".progress-bar").each(function(){
-                        bar_width = $(this).attr('aria-valuenow');
-                        $(this).width(bar_width + '%');
-                    });
-
-                    if (data.screens.length == 1) {
-                        $.get(data.screens[0].substring(1), function (e) {
-                            console.log(e);
-                            co.html("");
-                            co.append("<h1 class=\"coolFont\">" + e.swimmerName + "</h1>");
-                            var thing = "";
-                            thing += ("<h3 class=\"coolFont\">Will Make States: "+ e.willMakeStates +"</h3>");
-                            if (e.logPredictions.length > 0) {
-                                thing += ("<h3 class=\"coolFont\">Log Meet Prediction Accuracy</h3>");
-                                thing += ("<table class=\"table\">");
-                                thing += ("<tr>");
-                                thing += ("<th>Event Name</th>");
-                                thing += ("<th>Predicted District Time</th>");
-                                thing += ("<th>Actual District Time</th>");
-                                thing += ("<th class=\"tip\" title=\"Seconds Per Length - Positive Means Prediction Was Faster\">Prediction Accuracy</th>");
-                                thing += ("</tr>");
-                                for (var i = 0; i < e.logPredictions.length; i++) {
-                                    thing += ("<tr>");
-                                    thing += ("<td>"+e.logPredictions[i].event+"</td>");
-                                    thing += ("<td>"+doubleTimeToStringTime(e.logPredictions[i].predictedTime)+"</td>");
-                                    if (e.logPredictions[i].finalTime != "00:00.00") {
-                                        thing += ("<td>"+doubleTimeToStringTime(e.logPredictions[i].finalTime)+"</td>");
-                                        var timeDifference = (e.logPredictions[i].finalTime - e.logPredictions[i].predictedTime);
-                                        var numYards = amountOfYards(e.logPredictions[i].event);
-                                        var sign = "+";
-                                        if (timeDifference < 0) {
-                                            sign = "-";
-                                            timeDifference = Math.abs(timeDifference);
-                                        }
-                                        var title = "";
-                                        if (sign == "+") {
-                                            title = "Prediction was "+timeDifference.toFixed(2)+" seconds faster than actual";
-                                        } else {
-                                            title = "Prediction was "+timeDifference.toFixed(2)+" seconds slower than actual";
-                                        }
-                                        thing += ("<td class=\"tip\" title=\""+title+"\">"+sign+(timeDifference/numYards).toFixed(8)+" SPL</td>");
-                                    } else {
-                                        thing += ("<td>No actual time found.</td>");
-                                        thing += ("<td>Can not calculate.</td>");
-                                    }
-                                    thing += ("</tr>");
+                                } else {
+                                    table = "<p class=\"text-center\">No swims for this swimmer.</p>";
+                                    thing.append(table);
                                 }
-                                thing += ("</table>");
-                                co.append(thing);
-                                $(".tip").tooltip();
-                            } else {
-                                co.append("<br>");
-                                co.append("<h3 class=\"coolFont\">No Log Meet Predictions for this Swimmer</h3>");
-                            }
-                        });
-                    }
-                } else {
-                    co.html("<div class=\"row\"><div class=\"col-md-2\"></div><div class=\"col-md-8\"><h1 class=\"coolFont whiteColor\"> Screens: "+data.screens.length+"</h1></div><div class=\"col-md-2\"></div></div>");
+
+                                thing.append("<br>");
+                                thing.append("<h3 class=\"coolFont\">USA Swimming Times <button type=\"button\" class=\"btn btn-default btn-sm expand-button\"><span class=\"glyphicon glyphicon-plus\"></span></button></h3>");
+                                thing.append("<br>");
+                                table = "<table class=\"table text-center usa-swimming-table\" style=\"display: none;\"><tr><th>Event Name</th><th>Time</th></tr>";
+                                for (var i = 0; i < data.bestTimes.length; i++) {
+                                    table += ("<tr><td>" + data.bestTimes[i].event + "</td><td>" + data.bestTimes[i].human_time + "</td></tr>");
+                                }
+                                table += "</table>";
+                                thing.append(table);
+                            })
+                        }
+                    });
                 }
             }
-        });
-    }
+            else if (data.type == "") {
+                console.log("eh");
+            } else if (data.type == "predictions") {
+                console.log("start parsing results!");
+                var progressBar = "<div class=\"progress\">" +
+                        "<div class=\"progress-bar progress-bar-striped active\"  role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\">" +
+                        "</div>" +
+                        "</div>";
+                co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1><br>" + progressBar + "</div><div class=\"col-md-4\"></div></div>");
+                $(".progress-bar").each(function () {
+                    bar_width = $(this).attr('aria-valuenow');
+                    $(this).width(bar_width + '%');
+                });
+
+                if (data.screens.length == 1) {
+                    $.get(data.screens[0].substring(1),function (e) {
+                        console.log("start parsing results!");
+                        var newHTML = "<div class=\"row\"><div class=\"col-md-12\"><p class=\"coolFont whiteColor\"><ul>";
+                        console.log(e);
+                        //var start = e.startTime;
+                        //delete e.startTime;
+                        console.log("hello");
+                        for (var i = 0; i < e.length; i++) {
+                            console.log(e[i].time);
+                            newHTML += ("<li>If you swam a " + e[i].startTime + " at " + e[i].goingFrom + " you would swim a " + doubleTimeToStringTime(e[i].time) + " at " + e[i].to + "</li>");
+                        }
+                        newHTML += ("</ul></p></div></div>");
+                        co.fadeOut("slow").html(newHTML).fadeIn("slow");
+                    }).fail(function () {
+                        alert("error");
+                    });
+                }
+            } else if (data.type == "swimmer_predictions") {
+                var progressBar = "<div class=\"progress\">" +
+                        "<div class=\"progress-bar progress-bar-striped active\"  role=\"progressbar\" aria-valuenow=\"100\" aria-valuemin=\"0\" aria-valuemax=\"100\">" +
+                        "</div>" +
+                        "</div>";
+                co.html("<div class=\"row\"><div class=\"col-md-4\"></div><div class=\"col-md-4\"><h1 class=\"coolFont whiteColor\">Creating Time Predictions...</h1><br>" + progressBar + "</div><div class=\"col-md-4\"></div></div>");
+                $(".progress-bar").each(function () {
+                    bar_width = $(this).attr('aria-valuenow');
+                    $(this).width(bar_width + '%');
+                });
+
+                if (data.screens.length == 1) {
+                    $.get(data.screens[0].substring(1), function (e) {
+                        console.log(e);
+                        co.html("");
+                        co.append("<h1 class=\"coolFont\">" + e.swimmerName + "</h1>");
+                        var thing = "";
+                        //will make states thing
+                        if (e.willMakeStates.length > 0) {
+                            thing += ("<h3 class=\"coolFont\">Prediction Table</h3>");
+                            thing += ("<table class=\"table\">");
+                            thing += ("<tr><th>Event</th><th>Districts Swim</th><th>Predicted Regionals Time</th><th>Predicted States Time</th><th>2013 States Requirement</th><th>Will Make States</th></tr>");
+                            for (var i = 0; i < e.willMakeStates.length; i++) {
+                                thing += ("<tr>");
+                                thing += ("<td>" + e.willMakeStates[i].event + "</td>"); //event
+                                thing += ("<td>" + doubleTimeToStringTime(e.willMakeStates[i].actualTime) + "</td>"); //districts
+                                thing += ("<td>" + doubleTimeToStringTime(e.willMakeStates[i].predictedTime) + "</td>"); //regions
+                                thing += ("<td>" + doubleTimeToStringTime(e.willMakeStates[i].predictedTimeStates) + "</td>"); //states
+                                thing += ("<td>" + doubleTimeToStringTime(e.willMakeStates[i].leastTime) + "</td>"); //required
+                                thing += ("<td>" + e.willMakeStates[i].willMakeStates + "</td>"); //will
+                                thing += ("</tr>");
+                            }
+                            thing += ("</table>");
+                        } else {
+                            thing += ("<h3 class=\"coolFont\">Predictions Cannot Be Calculated for this Swimmer</h3>");
+                        }
+
+                        if (e.logPredictions.length > 0) {
+                            thing += ("<h3 class=\"coolFont\">Log Meet Prediction Accuracy</h3>");
+                            thing += ("<table class=\"table\">");
+                            thing += ("<tr>");
+                            thing += ("<th>Event Name</th>");
+                            thing += ("<th>Predicted District Time</th>");
+                            thing += ("<th>Actual District Time</th>");
+                            thing += ("<th class=\"tip\" title=\"Seconds Per Length - Positive Means Prediction Was Faster\">Prediction Accuracy</th>");
+                            thing += ("</tr>");
+                            for (var i = 0; i < e.logPredictions.length; i++) {
+                                thing += ("<tr>");
+                                thing += ("<td>" + e.logPredictions[i].event + "</td>");
+                                thing += ("<td>" + doubleTimeToStringTime(e.logPredictions[i].predictedTime) + "</td>");
+                                if (e.logPredictions[i].finalTime != "00:00.00") {
+                                    thing += ("<td>" + doubleTimeToStringTime(e.logPredictions[i].finalTime) + "</td>");
+                                    var timeDifference = (e.logPredictions[i].finalTime - e.logPredictions[i].predictedTime);
+                                    var numYards = amountOfYards(e.logPredictions[i].event);
+                                    var sign = "+";
+                                    if (timeDifference < 0) {
+                                        sign = "-";
+                                        timeDifference = Math.abs(timeDifference);
+                                    }
+                                    var title = "";
+                                    if (sign == "+") {
+                                        title = "Prediction was " + timeDifference.toFixed(2) + " seconds faster than actual";
+                                    } else {
+                                        title = "Prediction was " + timeDifference.toFixed(2) + " seconds slower than actual";
+                                    }
+                                    thing += ("<td class=\"tip\" title=\"" + title + "\">" + sign + (timeDifference / numYards).toFixed(8) + " SPL</td>");
+                                } else {
+                                    thing += ("<td>No actual time found.</td>");
+                                    thing += ("<td>Can not calculate.</td>");
+                                }
+                                thing += ("</tr>");
+                            }
+                            thing += ("</table>");
+                            co.append(thing);
+                            $(".tip").tooltip();
+                        } else {
+                            co.append(thing);
+                            co.append("<br>");
+                            co.append("<h3 class=\"coolFont\">No Log Meet Predictions for this Swimmer</h3>");
+                        }
+                    });
+                }
+            } else {
+                co.html("<div class=\"row\"><div class=\"col-md-2\"></div><div class=\"col-md-8\"><h1 class=\"coolFont whiteColor\"> Screens: " + data.screens.length + "</h1></div><div class=\"col-md-2\"></div></div>");
+            }
+        }
+    });
+}
 </script>
 </body>
 </html>
