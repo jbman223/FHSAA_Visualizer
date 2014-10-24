@@ -125,6 +125,20 @@
         return (pad(minutes, 2)+":"+pad(seconds, 2)+"."+pad(micro, 2));
     }
 
+    function amountOfYards (eventName) {
+        if (eventName.contains("500")) {
+            return 10;
+        } else if (eventName.contains("200")) {
+            return 4;
+        }  else if (eventName.contains("100")) {
+            return 2;
+        } else if (eventName.contains("50")) {
+            return 1;
+        }
+        return 1;
+    }
+
+
     function onTimeout() {
         var co = $("#commandOutput");
         co.html("");
@@ -274,6 +288,52 @@
                     if (data.screens.length == 1) {
                         $.get(data.screens[0].substring(1), function (e) {
                             console.log(e);
+                            co.html("");
+                            co.append("<h1 class=\"coolFont\">" + e.swimmerName + "</h1>");
+                            var thing = "";
+                            thing += ("<h3 class=\"coolFont\">Will Make States: "+ e.willMakeStates +"</h3>");
+                            if (e.logPredictions.length > 0) {
+                                thing += ("<h3 class=\"coolFont\">Log Meet Prediction Accuracy</h3>");
+                                thing += ("<table class=\"table\">");
+                                thing += ("<tr>");
+                                thing += ("<th>Event Name</th>");
+                                thing += ("<th>Predicted District Time</th>");
+                                thing += ("<th>Actual District Time</th>");
+                                thing += ("<th class=\"tip\" title=\"Seconds Per Length - Positive Means Prediction Was Faster\">Prediction Accuracy</th>");
+                                thing += ("</tr>");
+                                for (var i = 0; i < e.logPredictions.length; i++) {
+                                    thing += ("<tr>");
+                                    thing += ("<td>"+e.logPredictions[i].event+"</td>");
+                                    thing += ("<td>"+doubleTimeToStringTime(e.logPredictions[i].predictedTime)+"</td>");
+                                    if (e.logPredictions[i].finalTime != "00:00.00") {
+                                        thing += ("<td>"+doubleTimeToStringTime(e.logPredictions[i].finalTime)+"</td>");
+                                        var timeDifference = (e.logPredictions[i].finalTime - e.logPredictions[i].predictedTime);
+                                        var numYards = amountOfYards(e.logPredictions[i].event);
+                                        var sign = "+";
+                                        if (timeDifference < 0) {
+                                            sign = "-";
+                                            timeDifference = Math.abs(timeDifference);
+                                        }
+                                        var title = "";
+                                        if (sign == "+") {
+                                            title = "Prediction was "+timeDifference.toFixed(2)+" seconds faster than actual";
+                                        } else {
+                                            title = "Prediction was "+timeDifference.toFixed(2)+" seconds slower than actual";
+                                        }
+                                        thing += ("<td class=\"tip\" title=\""+title+"\">"+sign+(timeDifference/numYards).toFixed(8)+" SPL</td>");
+                                    } else {
+                                        thing += ("<td>No actual time found.</td>");
+                                        thing += ("<td>Can not calculate.</td>");
+                                    }
+                                    thing += ("</tr>");
+                                }
+                                thing += ("</table>");
+                                co.append(thing);
+                                $(".tip").tooltip();
+                            } else {
+                                co.append("<br>");
+                                co.append("<h3 class=\"coolFont\">No Log Meet Predictions for this Swimmer</h3>");
+                            }
                         });
                     }
                 } else {

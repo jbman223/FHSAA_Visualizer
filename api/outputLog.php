@@ -18,6 +18,7 @@ $events = array(
     "Event 7  Girls 50 Yard Freestyle",
     "Event 8  Boys 50 Yard Freestyle"
 );
+
 $state = $db->prepare("SELECT * FROM log_predictions WHERE event = ? ORDER BY time ASC");
 ?>
 <!DOCTYPE html>
