@@ -423,4 +423,5 @@ function processQuery($query)
 
 //query
 $query = $_POST['query'];
+
 processQuery($query);
