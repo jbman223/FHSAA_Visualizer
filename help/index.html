@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buckheit.com - Awesome FHSAA Event Visualization</title>
+    <link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background: url('http://www.redpepperwallpaper.com/wp_highres/abstraction/WPM7JGW7.jpg') center no-repeat fixed;
+        }
+
+        #main {
+            background: rgba(255, 255, 255, 1) center;
+            padding: 10px;
+            text-align: center;
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        #title {
+            color: black;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+            font-size: 52px;
+        }
+
+        #description {
+            background: rgba(255, 255, 255, 0) center;
+            border-radius: 5px;
+            width: 600px;
+            font-size: 16pt;
+            text-align: justify;
+            color: white;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+            text-shadow: 0 0 2px #000;
+            margin: 0 auto;
+        }
+
+        #mainInput {
+            width: 800px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            border: none;
+            border-radius: 5px;
+            color: black;
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+        }
+
+        .coolFont {
+            font-family: "Fjalla One", "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+        }
+
+        .whiteColor {
+            color: black;
+        }
+
+        th {
+            text-align: center;
+        }
+
+        .progress-bar {
+            -webkit-transition: width 2s ease-in-out;
+            transition: width 2s ease-in-out;
+        }
+    </style>
+
+    <meta name="Description" content="Buckheit.COM - Buckheit.com help documentation.">
+</head>
+<body>
+<div id="main">
+    <h1>Buckheit.com - Help Documents</h1>
+
+    <p class="lead">How to write a query.</p>
+    <ol class="instructions text-justify">
+        <li>Start with a command. Starting commands can be any of these three: <code><span id="compare">compare</span>, <span id="predictions">predictions</span>, <span id="swimmers">swimmers</span></code> Click a command to learn more.</li>
+
+    </ol>
+</div>
+<script>
+    var showing = "";
+
+    $("#predictions").on("click", function () {
+        if (showing == "" || showing != "predictions") {
+            $(".addOn").remove();
+            showing = "predictions";
+            var inst = $(".instructions");
+            var toAppend = "";
+            toAppend += ("<li class=\"addOn\">To predict for a time: Follow the <code>predictions</code> command with <code>time</code><br>Your query should look like this so far: <code>predictions time</code></li>");
+            toAppend += ("<li class=\"addOn\">Insert a time and a class. The time must include an accurate decimal to strictly 2 places.<br>Your query should look like this so far: <code>predictions time 1:00.97 class 1a</code></li>");
+            toAppend += ("<li class=\"addOn\">Insert and <code>in</code> clause. <strong>AN IN CLAUSE IS REQUIRED.</strong><br>Your query should look like this so far: <code>predictions time 1:00.97 class 1a in mens 100 breast</code><br><strong>Skip to line 6 if predicting a time.</strong></li>");
+            toAppend += ("<li class=\"addOn\">To predict for swimmer: Follow the <code>predictions</code> command with the swimmers name. Predictions are only good for swimmers with a districts swim this year.<br>Your query should look like this so far: <code>predictions jacob buckheit</code></li>");
+            toAppend += ("<li class=\"addOn\">Press enter to run query.</li>");
+            inst.append(toAppend).fadeIn(1000);
+        }
+    });
+
+    $("#compare").on("click", function () {
+        if (showing == "" || showing != "compare") {
+            $(".addOn").each(function (e) {
+                $(e).remove();
+            })
+            showing = "compare";
+            var inst = $(".instructions");
+            var toAppend = "";
+            toAppend += ("<li class=\"addOn\">Follow the <code>compare</code> command with <code>swimmers</code><br>Your query should look like this so far: <code>compare swimmers</code></li>");
+            toAppend += ("<li class=\"addOn\">Type the first swimmers name<br>Your query should look like this so far: <code>compare swimmers jacob buckheit</code></li>");
+            toAppend += ("<li class=\"addOn\">Type <code>and</code> followed by the next swimmer's name. <br>Your query should look like this so far: <code>compare swimmers jacob buckheit and rip lyster</code><br></li>");
+            toAppend += ("<li class=\"addOn\"><strong>OPTIONAL:</strong> If looking to compare in a specific event, add an <code>in clause</code>. Type <code>in</code> followed by the gender yardage and stroke of the event.<br>Your query should look like this so far: <code>compare swimmers jacob buckheit and rip lyster in mens 100 breast</code></li>");
+            toAppend += ("<li class=\"addOn\">Press enter to run query.</li>");
+            inst.append(toAppend).fadeIn(1000);
+        }
+    });
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-56057288-1', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

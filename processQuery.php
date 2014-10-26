@@ -71,7 +71,7 @@ function processInClause($inClause)
 
 function processQuery($query)
 {
-    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "time", "and", "in");
+    $keyWords = array("compare", "results", "swimmer", "swimmers", "school", "schools", "predictions", "time", "and", "in", "help", "querybuilder");
     $split = explode(" ", strtolower($query));
     $indices = array();
     $layout = array("screens" => 1, "type" => "");
@@ -89,18 +89,18 @@ function processQuery($query)
 
     if (count($indices) == 0) {
         array_push($errors, "Syntax error. No commands found. Please start your query with a command.");
-        endProgram(json_encode(array("errors" => $errors)));
+        endProgram(json_encode(array("errors" => $errors, "errorCode" => 1)));
     }
 
     if ($split[$indices[0]] == "and") {
         array_push($errors, "Syntax error. Commands can't start with keyword 'and'");
-        endProgram(json_encode(array("errors" => $errors)));
+        endProgram(json_encode(array("errors" => $errors, "errorCode" => 2)));
     }
 
     for ($i = 0; $i < count($indices); $i++) {
         if ($split[$indices[$i]] == "in" && $i != count($indices) - 1) {
             array_push($errors, "Syntax error. 'in' clauses must be the last command.");
-            endProgram(json_encode(array("errors" => $errors)));
+            endProgram(json_encode(array("errors" => $errors, "errorCode" => 3)));
         }
     }
 
@@ -111,7 +111,7 @@ function processQuery($query)
                 for ($i = 2; $i < count($indices); $i++) {
                     if ($split[$indices[$i]] != "and" && $split[$indices[$i]] != "in") {
                         array_push($errors, "Syntax error. Subsequent commands after 'swimmers' must be 'and' or 'in'.");
-                        endProgram(json_encode(array("errors" => $errors)));
+                        endProgram(json_encode(array("errors" => $errors, "errorCode" => 4)));
                     }
 
                     if ($split[$indices[$i]] == "and") {
@@ -137,7 +137,7 @@ function processQuery($query)
                                 $first = urlencode($split[$commandIndex + 1]);
                                 $middle = urlencode($split[$commandIndex + 2]);
                                 $last = urlencode($split[$commandIndex + 3]);
-                                echo("query db: output times in " . ($inClause ? $inClause : "all events") . " for $first $middle $last.<br>");
+                                //echo("query db: output times in " . ($inClause ? $inClause : "all events") . " for $first $middle $last.<br>");
                                 if ($inClause) {
                                     $inClause = urlencode($inClause);
                                     array_push($unparsedCommands, "/api/swimmer.php?f=$first&m=$middle&l=$last&e=$inClause");
@@ -164,7 +164,7 @@ function processQuery($query)
                 for ($i = 2; $i < count($indices); $i++) {
                     if ($split[$indices[$i]] != "and" && $split[$indices[$i]] != "in") {
                         array_push($errors, "Syntax error. Subsequent commands after '$command' must be 'and'.");
-                        endProgram(json_encode(array("errors" => $errors)));
+                        endProgram(json_encode(array("errors" => $errors, "errorCode" => 5)));
                     }
 
                     if ($split[$indices[$i]] == "and")
@@ -383,6 +383,7 @@ function processQuery($query)
             endProgram(json_encode(array("errors" => $errors)));
         }
     } else if ($split[$indices[0]] == "school") {
+        $layout['type'] = "school";
         if (in_array("and", $split)) {
             array_push($errors, "Syntax error. Only 'compare' may be followed by 'and', comparing two or more entities.");
             endProgram(json_encode(array("errors" => $errors)));
@@ -409,9 +410,15 @@ function processQuery($query)
         } else {
             array_push($unparsedCommands, "/api/school.php?s=" . urlencode($schoolName) . "");
         }
+    } else if ($split[$indices[0]] == "help") {
+        $layout['type'] = "redirect";
+        array_push($unparsedCommands, "http://buckheit.com/help");
+    } else if ($split[$indices[0]] == "querybuilder") {
+        $layout['type'] = "querybuilder";
+        array_push($unparsedCommands, "");
     } else {
-        array_push($errors, "Syntax error. No command found. Please start each operation with a command.");
-        endProgram(json_encode(array("errors" => $errors)));
+        array_push($errors, "Syntax error. No commands found. Please start your query with a command.");
+        endProgram(json_encode(array("errors" => $errors, "errorCode" => 1)));
     }
 
     $finalOutput = array("screens" => array(), "type" => $layout['type']);
