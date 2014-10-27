@@ -98,7 +98,8 @@
                 <h4 class="modal-title">Query Builder</h4>
             </div>
             <div class="modal-body container">
-                <p>Build queries quickly and easily with this tool. First click on the action you would like to take.<br>I would like to <select><option>See Predictions</option><option>See a Swimmer</option><option>Compare Multiple Swimmers</option></select></p>
+                <p class="initialQBText">Build queries quickly and easily with this tool. First click on the action you would like to take.<br>I would like to <select class="primary"><option value="predictions">See Predictions</option><option value="swimmer">See a Swimmer</option><option value = "compare swimmers">Compare Multiple Swimmers</option></select></p>
+                <p class="predictionsTypeText" style="display: none;">Do you want to predict a time or see predictions for a swimmer?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -114,6 +115,7 @@ if (!String.prototype.contains) {
     };
 }
 
+var qbQuery = "";
 var timeout;
 $("#mainInput").keypress(function (e) {
     if (e.which == 13) e.preventDefault();
@@ -122,6 +124,18 @@ $("#mainInput").keypress(function (e) {
     timeout = setTimeout("onTimeout()", 700);
 
     $("#outputContainer").show()
+});
+
+$(".primary").on("change", function(e) {
+    var value = $(".primary").val();
+    qbQuery += value+" ";
+    if (value == "predictions") {
+
+    } else if (value == "swimmer") {
+
+    } else {
+
+    }
 });
 
 $("#commandOutput").on("click", ".expand-button", function (e) {

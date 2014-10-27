@@ -116,6 +116,9 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
             $thisEvent['willMakeStates'] = "Highly Unlikely";
         }
         array_push($totalRet['willMakeStates'], $thisEvent);
+
+        $a = "SET @rank = 0;
+SELECT @rank:=@rank+1 AS rank, `swimmers`.`f_name`, `swimmers`.`l_name`, swimmer_id, `final_time` FROM `swim_information` INNER JOIN `swimmers` ON `swimmers`.`id` = `swim_information`.`swimmer_id` WHERE `meet_type` = \"Districts\" AND year = \"2014\" AND `final_time` != 0 AND `event_name` = \"Event 16  Boys 500 Yard Freestyle\" AND meet_title LIKE \"%3A%\" ORDER BY `final_time` ASC LIMIT 0, 24";
     }
 
     //log predictions if there are any
