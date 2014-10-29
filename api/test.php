@@ -7,27 +7,32 @@ $swims = array();
 
 echo "<pre>";
 
-for ($i = 1; $i <= 12; $i++) {
-    $swims[$i] = array();
-    $state = $db->prepare("SELECT final_time FROM swim_information WHERE event_name = ? AND meet_title = ? AND final_time != 0 ORDER BY final_time ASC LIMIT 0, 8 ");
-    $state->execute(array(urldecode("Event+16++Boys+500+Yard+Freestyle"), "FHSAA 1A District $i Championship"));
-    $cSwims = $state->fetchAll(PDO::FETCH_ASSOC);
-    for ($a = 0; $a < count($cSwims); $a++) {
-        array_push($swims[$i], $cSwims[$a]['final_time']);
-    }
-    //echo "District $i <br>";
-}
+$db->query("SET @rank = 0;");
+$a = $db->prepare("SELECT @rank:=@rank+1 AS rank, `swimmers`.`f_name`, `swimmers`.`l_name`, swimmer_id, `final_time` FROM `swim_information` INNER JOIN `swimmers` ON `swimmers`.`id` = `swim_information`.`swimmer_id` WHERE `meet_type` = ? AND year = ? AND `final_time` != 0 AND `event_name` = ? AND meet_title LIKE ? ORDER BY `final_time` ASC LIMIT 0, 24;");
+$a->execute(array("Districts", "2014", "Event 16  Boys 500 Yard Freestyle", "%3A%"));
+print_r(json_encode($a->fetchAll(PDO::FETCH_ASSOC)));
 
-
-for ($i = 1; $i <= count($swims); $i++) {
-    print_r($swims[$i]);
-    if (count($swims[$i]) != 0) {
-        $average = array_sum($swims[$i])/count($swims[$i]);
-        echo "Average time for District $i is ".$average."<br>";
-    } else {
-        echo "District $i contains an error in original import<br>";
-    }
-}
+//for ($i = 1; $i <= 12; $i++) {
+//    $swims[$i] = array();
+//    $state = $db->prepare("SELECT final_time FROM swim_information WHERE event_name = ? AND meet_title = ? AND final_time != 0 ORDER BY final_time ASC LIMIT 0, 8 ");
+//    $state->execute(array(urldecode("Event+16++Boys+500+Yard+Freestyle"), "FHSAA 1A District $i Championship"));
+//    $cSwims = $state->fetchAll(PDO::FETCH_ASSOC);
+//    for ($a = 0; $a < count($cSwims); $a++) {
+//        array_push($swims[$i], $cSwims[$a]['final_time']);
+//    }
+//    //echo "District $i <br>";
+//}
+//
+//
+//for ($i = 1; $i <= count($swims); $i++) {
+//    print_r($swims[$i]);
+//    if (count($swims[$i]) != 0) {
+//        $average = array_sum($swims[$i])/count($swims[$i]);
+//        echo "Average time for District $i is ".$average."<br>";
+//    } else {
+//        echo "District $i contains an error in original import<br>";
+//    }
+//}
 
 echo "</pre>";
 
