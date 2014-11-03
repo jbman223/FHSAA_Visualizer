@@ -117,6 +117,33 @@ if (!String.prototype.contains) {
 
 var qbQuery = "";
 var timeout;
+
+$("table").on("click", ".dblClickForFun", function (e) {
+    console.log("dbl")
+    $("#mainInput").val("predictions "+$(this).text());
+});
+
+
+function statesArrayToTable(array, lookingFor) {
+    var table = "";
+    table += "<table class=\"table\">";
+    table += "<tr><th>Place</th><th>Name</th><th>Time</th></tr>";
+    for (var i = 0; i < array.length; i++) {
+        var addon = "";
+        if (array[i].f_name+" "+array[i].l_name == lookingFor) {
+            addon = " class=\"success\"";
+        }
+        table += "<tr"+addon+">";
+        table += "<td>"+array[i].rank+"</td>";
+        table += "<td class=\"dblClickForFun\">"+array[i].f_name+" "+array[i].l_name+"</td>";
+        table += "<td>"+doubleTimeToStringTime(array[i].final_time)+"</td>";
+        table += "</tr>";
+    }
+    table += "</table>";
+
+    return table;
+}
+
 $("#mainInput").keypress(function (e) {
     if (e.which == 13) e.preventDefault();
     if (timeout != null)
@@ -186,7 +213,7 @@ function onTimeout() {
         $("#mainInput").val("querybuilder");
     }
 
-    if (!$("#mainInput").val() == "" && !$("#mainInput").val() == "querybuilder") {
+    if (!$("#mainInput").val() == "" || !$("#mainInput").val() == "querybuilder") {
         $.get("api/saveQuery.php", {query: $("#mainInput").val()}, function (f) {
             console.log("query saved " + f);
         });
@@ -337,12 +364,14 @@ function onTimeout() {
                         co.html("");
                         co.append("<h1 class=\"coolFont\">" + e.swimmerName + "</h1>");
                         var thing = "";
+                        var top24Tables = {};
                         //will make states thing
                         if (e.willMakeStates.length > 0) {
                             thing += ("<h3 class=\"coolFont\">Prediction Table</h3>");
                             thing += ("<table class=\"table\">");
                             thing += ("<tr><th>Event</th><th>Districts Swim</th><th>Predicted Regionals Time</th><th>Predicted States Time</th><th>2013 States Requirement</th><th>Will Make States</th></tr>");
                             for (var i = 0; i < e.willMakeStates.length; i++) {
+                                top24Tables[e.willMakeStates[i].event] = statesArrayToTable(e.willMakeStates[i].statePredictions, e.swimmerName);
                                 thing += ("<tr>");
                                 thing += ("<td>" + e.willMakeStates[i].event + "</td>"); //event
                                 thing += ("<td>" + doubleTimeToStringTime(e.willMakeStates[i].actualTime) + "</td>"); //districts
@@ -356,6 +385,15 @@ function onTimeout() {
                         } else {
                             thing += ("<h3 class=\"coolFont\">Predictions Cannot Be Calculated for this Swimmer</h3>");
                         }
+
+                        console.log(top24Tables);
+
+//                        for(key in top24Tables){
+//                            console.log(key);
+//                            co.append("<h1 class=\"coolFont\">" + key + "</h1><br>");
+//                            co.append(top24Tables[key]);
+//                            co.append("<br>")
+//                        }
 
                         if (e.logPredictions.length > 0) {
                             thing += ("<h3 class=\"coolFont\">Log Meet Prediction Accuracy</h3>");
@@ -399,6 +437,13 @@ function onTimeout() {
                             co.append(thing);
                             co.append("<br>");
                             co.append("<h3 class=\"coolFont\">No Log Meet Predictions for this Swimmer</h3>");
+                        }
+
+                        for(key in top24Tables){
+                            console.log(key);
+                            co.append("<h3 class=\"coolFont\">" + key + "</h3><br>");
+                            co.append(top24Tables[key]);
+                            co.append("<br>")
                         }
                     });
                 }

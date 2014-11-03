@@ -115,12 +115,13 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
         } else {
             $thisEvent['willMakeStates'] = "Highly Unlikely";
         }
-        array_push($totalRet['willMakeStates'], $thisEvent);
 
         $db->query("SET @rank = 0;");
         $a = $db->prepare("SELECT @rank:=@rank+1 AS rank, `swimmers`.`f_name`, `swimmers`.`l_name`, swimmer_id, `final_time` FROM `swim_information` INNER JOIN `swimmers` ON `swimmers`.`id` = `swim_information`.`swimmer_id` WHERE `meet_type` = ? AND year = ? AND `final_time` != 0 AND `event_name` = ? AND meet_title LIKE ? ORDER BY `final_time` ASC LIMIT 0, 24;");
         $a->execute(array("Districts", "2014", $event, "%$class%"));
         $thisEvent['statePredictions'] = $a->fetchAll(PDO::FETCH_ASSOC);
+
+        array_push($totalRet['willMakeStates'], $thisEvent);
     }
 
     //log predictions if there are any
