@@ -3,7 +3,7 @@ require_once "require.php";
 require_once "statisticalFunctions.php";
 header('Content-Type: application/json');
 function predictTime($meetPairs, $eventName, $class, $time) {
-    global $db;
+    global $db, $currentYear;
     $ret = array();
 
     $state = $db->prepare("SELECT `final_time`, `swimmer_id` FROM swim_information WHERE event_name = ? AND meet_type = ? AND `year` = ? AND meet_title LIKE ?");
@@ -11,11 +11,11 @@ function predictTime($meetPairs, $eventName, $class, $time) {
     foreach ($meetPairs as $secondMeet => $startingMeet) {
         $x = array();
         $y = array();
-        $state->execute(array($eventName, $startingMeet, "2013", $class));
+        $state->execute(array($eventName, $startingMeet, $currentYear-1, $class));
         $states = $state->fetchAll();
         foreach ($states as $swim) {
             if ($swim[0] != 0) {
-                $secondaryQuery->execute(array($eventName, $secondMeet, "2013", $swim["swimmer_id"]));
+                $secondaryQuery->execute(array($eventName, $secondMeet, $currentYear-1, $swim["swimmer_id"]));
                 $second = $secondaryQuery->fetchAll();
                 //make sure there is more than one result (there may be results in the parsing created from database transfer or other variables unaccounted for.
                 if (count($second) > 0) {
@@ -78,7 +78,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
     //predict if the swimmer will make states this year
     //get events swimmer has swam so far
     $alpha = $db->prepare("SELECT * FROM swim_information WHERE swimmer_id = ? AND `year` = ? AND meet_type = ?");
-    $alpha->execute(array($swimmer_id, "2014", "Districts"));
+    $alpha->execute(array($swimmer_id, $currentYear, "Districts"));
     $swims = $alpha->fetchAll(PDO::FETCH_ASSOC);
     $fastestTime = $db->prepare("SELECT seed_time FROM swim_information WHERE `year` = ? AND meet_title LIKE ? AND event_name = ? AND finals_swim = 0 ORDER BY seed_time DESC LIMIT 0, 1");
     foreach ($swims as $swim) {
@@ -90,7 +90,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
         $class = explode(" ", $swim['meet_title'])[1];
         $classLong = "FHSAA Championship - Class $class%";
 
-        $fastestTime->execute(array("2013", $classLong, $event));
+        $fastestTime->execute(array($currentYear-1, $classLong, $event));
         $time = $fastestTime->fetchAll(PDO::FETCH_ASSOC)[0]['seed_time'];
         $thisEvent['leastTime'] = $time;
 
@@ -118,7 +118,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
 
         $db->query("SET @rank = 0;");
         $a = $db->prepare("SELECT @rank:=@rank+1 AS rank, `swimmers`.`f_name`, `swimmers`.`l_name`, swimmer_id, `final_time` FROM `swim_information` INNER JOIN `swimmers` ON `swimmers`.`id` = `swim_information`.`swimmer_id` WHERE `meet_type` = ? AND year = ? AND `final_time` != 0 AND `event_name` = ? AND meet_title LIKE ? ORDER BY `final_time` ASC LIMIT 0, 24;");
-        $a->execute(array("Districts", "2014", $event, "%$class%"));
+        $a->execute(array("Districts", $currentYear, $event, "%$class%"));
         $thisEvent['statePredictions'] = $a->fetchAll(PDO::FETCH_ASSOC);
 
         array_push($totalRet['willMakeStates'], $thisEvent);
@@ -137,7 +137,7 @@ if (isset($_GET['type']) && $_GET['type'] == "time") {
 
     foreach ($ret as $logSwim) {
         $tR = array();
-        $alpha->execute(array($swimmer_id, "2014", $logSwim['event'], "Districts"));
+        $alpha->execute(array($swimmer_id, $currentYear, $logSwim['event'], "Districts"));
         $recentSwims = $alpha->fetchAll(PDO::FETCH_ASSOC);
         $event= $logSwim['event'];
         if (count($recentSwims) == 1) {

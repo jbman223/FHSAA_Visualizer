@@ -31,12 +31,12 @@ foreach ($events as $event) {
     $predictions[$i] = array();
 
     $state = $db->prepare("SELECT final_time, swimmer_id FROM swim_information WHERE meet_type = ? AND `year` = ? AND final_time != 0 AND event_name = ?");
-    $state->execute(array("Counties", "2013", $event));
+    $state->execute(array("Counties", $currentYear-1, $event));
     $countiesSwims = $state->fetchAll(PDO::FETCH_ASSOC);
 //print_r($countiesSwims);
     $newState = $db->prepare("SELECT final_time FROM swim_information WHERE meet_type = ? AND `year` = ? AND final_time != 0 AND event_name = ? AND swimmer_id = ?");
     foreach ($countiesSwims as $countiesSwim) {
-        $newState->execute(array("Districts", "2013", $event, $countiesSwim['swimmer_id']));
+        $newState->execute(array("Districts", $currentYear-1, $event, $countiesSwim['swimmer_id']));
         $ret = $newState->fetchAll(PDO::FETCH_ASSOC);
         if (isset($ret[0]['final_time'])) {
             array_push($timeRelationArray, array("districts" => $ret[0]['final_time'], "counties" => $countiesSwim['final_time']));
@@ -49,7 +49,7 @@ foreach ($events as $event) {
     //print_r($linearRegression);
 
     $state = $db->prepare("SELECT final_time, swimmer_id FROM swim_information WHERE meet_type = ? AND `year` = ? AND final_time != 0 AND event_name = ?");
-    $state->execute(array("Counties", "2014", $event));
+    $state->execute(array("Counties", $currentYear, $event));
     $things = $state->fetchAll(PDO::FETCH_ASSOC);
     $swimmer = $db->prepare("SELECT * FROM swimmers WHERE id = ?");
     foreach ($things as $thing) {

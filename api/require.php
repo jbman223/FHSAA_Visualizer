@@ -3,6 +3,8 @@
 //establish database connections
 require_once "db.php";
 
+$currentYear = 2015;
+
 function createNewSwimmer ($firstName, $lastName, $middleName = "") {
     global $db;
     $state = $db->prepare("INSERT INTO swimmers (f_name, m_name, l_name) VALUES (?, ?, ?)");
